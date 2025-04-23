@@ -1,23 +1,21 @@
 # Spectral Analysis Utilities
 
-This repository contains **Python modules** and **scripts** for processing hyperspectral data:
+This repository contains **Python modules** and **scripts** for processing hyperspectral data collected using the WITec Alpha 300S instrument.
 
-- **io_utils.py**: Load numerical spectra from text/CSV files.
-- **calc_utils.py**: Compute per-pixel metrics—integrated intensity, weighted mean emission wavelength, FWHM—and reshape arrays.
-- **fit_utils.py**: Fit Gaussian models (`single` or `double`) using lmfit and extract parameters.
-- **plot_utils.py**: Generate plots for spectra, 2D parameter maps, pair plots, and correlation matrices.
+This toolkit enables rapid post-processing of hyperspectral datasets by computing spatial maps, average spectra, and per-pixel model fits with different functions. Results are visualized as plots and exported as tables. In contrast to WITec software, every process is transparent and easily customizable.
 
 ## Recommended Setup
 
-Use a Python-aware IDE (e.g., VS Code, PyCharm) for syntax highlighting, code navigation, and debugging. Ensure your working directory is the project root so imports resolve correctly.
+Use a Python-aware IDE (e.g., VS Code, Spyder) for syntax highlighting, code navigation, and debugging. 
+CLI is not supported as you will need to input multiple parameters directly in the code.
+Ensure your working directory is the project root so imports resolve correctly.
 
 ### Install Dependencies
 
 ```bash
-pip install numpy pandas matplotlib lmfit tqdm
+pip install numpy pandas matplotlib lmfit tqdm tkinter
 ```
 
-If you want graphical file dialogs, also install tkinter (often bundled with Python).
 
 ## Scripts Overview
 
@@ -25,9 +23,9 @@ Three main workflows are provided as standalone scripts. Configure each at the t
 
 | Script            | Description                                                                                      |
 |-------------------|--------------------------------------------------------------------------------------------------|
-| **main_basic.py** | Compute per-pixel maps (II, mean wavelength, FWHM) and export heatmaps, pair plots, and corr matrix. |
-| **main_fit1.py**  | Average all spectra into one curve, fit with Gaussian, and save both the raw & fitted plots.     |
-| **main_fit2.py**  | "Mass fit": fit every pixel’s spectrum, save parameter table, spatial maps, distribution stats, and correlation matrix. |
+| **main_basic.py** | Compute per-pixel maps (integrated intensity, mean wavelength, FWHM) and export heatmaps, pair plots, and corr matrix. |
+| **main_fit1.py**  | Average all spectra into one curve, fit with a chosen distribution, and save both the raw & fitted plots.     |
+| **main_fit2.py**  | "Mass fit": fit every pixel’s spectrum, save parameter table, spatial maps, distribution stats, and correlation matrix. Typically **main_fit1.py** is performed first so as to ascertain the correct initial parameters.|
 
 ## Configuration
 
@@ -35,19 +33,15 @@ At the top of each script, edit the **USER CONFIGURATION** block:
 
 - `OUTPUT_BASE_DIR`: directory for all outputs.
 - `WAVELENGTH_MIN`, `WAVELENGTH_MAX`: spectral range (nm) for calculations or fits.
-- `MODEL`: `'single'` or `'double'` gaussian.
+- `MODEL`: For now the choices are `'single'` or `'double'` gaussian.
 - `INITIAL_PARAMS`: optional dict of initial fit guesses (or `None` for defaults).
 - `SHOW_PLOTS`: `True` to display plots interactively.
 
 ## Usage Example
 
+0. Export data from WITec software, using the `Export` -> `Table` option, taking care it is background substracted. 
 1. Open the script in your IDE and configure the USER CONFIGURATION block.
-2. Run in terminal or IDE:
-   ```bash
-   python main_basic.py
-   python main_fit1.py
-   python main_fit2.py
-   ```
+2. Run.
 3. A file‐selection dialog appears (or input path at prompt). Select your data file.
 4. Outputs are saved in `OUTPUT_BASE_DIR/<filename>_<timestamp>/`:
    - **PNG/PDF** plots for heatmaps, spectra, distributions, and correlation matrices
