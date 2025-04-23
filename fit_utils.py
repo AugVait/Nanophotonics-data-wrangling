@@ -18,6 +18,29 @@ def double_gaussian(x: np.ndarray,
     return (gaussian(x, amp1, cen1, sigma1) +
             gaussian(x, amp2, cen2, sigma2))
 
+def asymmetric_gaussian(x, amp, cen, fwhm_low, fwhm_high):
+    """
+    Asymmetrical Gaussian function with different FWHM values for the
+    high and low energy sides of the center.
+
+    Parameters:
+    - x: The independent variable.
+    - amp: The amplitude of the Gaussian.
+    - cen: The center of the Gaussian.
+    - fwhm_low: The FWHM on the low energy side.
+    - fwhm_high: The FWHM on the high energy side.
+
+    Returns:
+    - The Gaussian value at each point x.
+    """
+    sigma_low = fwhm_low / (2*np.sqrt(2*np.log(2)))
+    sigma_high = fwhm_high / (2*np.sqrt(2*np.log(2)))
+
+    # Conditionally apply the appropriate sigma
+    cond = x < cen
+    sigma = np.where(cond, sigma_low, sigma_high)
+
+    return amp * np.exp(-(x - cen)**2 / (2 * sigma**2))
 
 def fit_model(x: np.ndarray,
               y: np.ndarray,
@@ -27,17 +50,29 @@ def fit_model(x: np.ndarray,
               initial_params: dict = None,
               ax=None):
     """
-    Fit data (y vs. x) using a single or double Gaussian model.
+    Fit data (y vs. x) using a predefined model.
     """
     if model == 'single':
         mod = Model(gaussian)
-        params = mod.make_params(amplitude=y.max(), center=x[np.argmax(y)], sigma=(x.max() - x.min())/10)
-    else:
+        params = mod.make_params(amplitude=y.max(), center=x[np.argmax(y)], sigma=(x.max() - x.min()) / 10)
+    elif model == 'double':
         mod = Model(double_gaussian)
         params = mod.make_params(
             amp1=y.max()/2, cen1=x[np.argmax(y)], sigma1=(x.max()-x.min())/20,
             amp2=y.max()/2, cen2=x[np.argmax(y)], sigma2=(x.max()-x.min())/20
         )
+    elif model == 'asymmetric':
+        mod = Model(asymmetric_gaussian)
+        params = mod.make_params(
+            amp=y.max(),
+            cen=x[np.argmax(y)],
+            fwhm_low=(x.max() - x.min()) / 10,
+            fwhm_high=(x.max() - x.min()) / 5
+        )
+    else:
+        raise ValueError(f"Unsupported model type: {model}")
+
+
     if initial_params:
         for name, val in initial_params.items():
             if name in params:
@@ -45,7 +80,7 @@ def fit_model(x: np.ndarray,
 
     for param in params.values():
         param.set(min=0)
-        
+
     mask = np.ones_like(x, dtype=bool)
     if x_min is not None:
         mask &= (x >= x_min)

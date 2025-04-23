@@ -33,19 +33,96 @@ At the top of each script, edit the **USER CONFIGURATION** block:
 
 - `OUTPUT_BASE_DIR`: directory for all outputs.
 - `WAVELENGTH_MIN`, `WAVELENGTH_MAX`: spectral range (nm) for calculations or fits.
-- `MODEL`: For now the choices are `'single'` or `'double'` gaussian.
+- `MODEL`: For now the choices are `'single'`, `'double'` or `'asymmetric'` gaussian.
 - `INITIAL_PARAMS`: optional dict of initial fit guesses (or `None` for defaults).
 - `SHOW_PLOTS`: `True` to display plots interactively.
 
 ## Usage Example
 
-0. Export data from WITec software, using the `Export` -> `Table` option, taking care it is background substracted. 
+0. Export data from WITec software, using the `Export` -> `Table` option, taking care it is background subtracted. 
 1. Open the script in your IDE and configure the USER CONFIGURATION block.
 2. Run.
 3. A file‐selection dialog appears (or input path at prompt). Select your data file.
 4. Outputs are saved in `OUTPUT_BASE_DIR/<filename>_<timestamp>/`:
    - **PNG/PDF** plots for heatmaps, spectra, distributions, and correlation matrices
    - **CSV** tables for fit parameters
+
+## Fitting Models
+
+The analysis scripts support multiple spectral fitting models for handling different emission lineshapes. You can select the desired model using the `MODEL` variable in the **USER CONFIGURATION** section of `main_fit1.py` or `main_fit2.py`.
+
+### Available Models
+
+---
+
+### `MODEL = "single"`
+
+Fits a **single symmetric Gaussian** function:
+
+\[
+f(x) = A \cdot \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
+\]
+
+- **Parameters:**
+  - `amplitude` \( A \): peak height
+  - `center` \( \mu \): peak location
+  - `sigma` \( \sigma \): standard deviation (width of the peak)
+
+- **Use Case:** 
+  - Clean, symmetric emission peaks
+  - Simple and fast to compute
+
+---
+
+### `MODEL = "double"`
+
+Fits the sum of two symmetric Gaussians:
+
+\[
+f(x) = A_1 \cdot \exp\left(-\frac{(x - \mu_1)^2}{2\sigma_1^2}\right) + A_2 \cdot \exp\left(-\frac{(x - \mu_2)^2}{2\sigma_2^2}\right)
+\]
+
+- **Parameters:**
+  - `amp1`, `cen1`, `sigma1`: for the first peak
+  - `amp2`, `cen2`, `sigma2`: for the second peak
+
+- **Use Case:**
+  - Overlapping peaks
+  - Multi-emitter samples
+  - Spectral shoulders
+
+---
+
+### `MODEL = "asymmetric"`
+
+Fits an **asymmetric Gaussian** with separate FWHMs for each side of the peak:
+
+\[
+f(x) = A \cdot \exp\left(-\frac{(x - \mu)^2}{2\sigma(x)^2}\right)
+\quad \text{where} \quad
+\sigma(x) = 
+\begin{cases}
+\sigma_\text{low} & \text{if } x < \mu \\
+\sigma_\text{high} & \text{if } x \geq \mu
+\end{cases}
+\]
+
+Here, the relationship between FWHM and standard deviation is:
+
+\[
+\sigma = \frac{\text{FWHM}}{2\sqrt{2\ln 2}}
+\]
+
+- **Parameters:**
+  - `amp` \( A \): amplitude of the peak
+  - `cen` \( \mu \): peak center
+  - `fwhm_low`: width on the low-energy side
+  - `fwhm_high`: width on the high-energy side
+
+- **Use Case:**
+  - Skewed emission lines
+  - Inhomogeneous broadening
+
 
 ## Module Reference
 

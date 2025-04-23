@@ -18,14 +18,26 @@ OUTPUT_BASE_DIR = "mass_fit_outputs"
 WAVELENGTH_MIN = 450.0
 WAVELENGTH_MAX = 650.0
 
-# Choose 'single' or 'double' Gaussian
+# Choose 'single', 'double' or 'asymmetric' Gaussian
 MODEL = "single"
 
-# Initial fit parameters or None to use defaults
-# For single: {'amplitude': ..., 'center': ..., 'sigma': ...}
-# For double: {'amp1':..., 'cen1':..., 'sigma1':..., 'amp2':..., 'cen2':..., 'sigma2':...}
-INITIAL_PARAMS = None
+# Initial fit parameters as a dict, e.g.:
 
+# For single: {'amplitude': 1.0, 'center': 550.0, 'sigma': 20.0}
+# For double: {
+#    'amp1': 1.0, 'cen1': 540.0, 'sigma1': 15.0,
+#    'amp2': 0.5, 'cen2': 580.0, 'sigma2': 25.0 }
+# For asymetric: {
+#    'amp': 100.0,'cen': 550.0,
+#    'fwhm_low': 10.0, 'fwhm_high': 20.0 }
+
+# Set to None to use default guesses
+# INITIAL_PARAMS = None
+
+INITIAL_PARAMS = {
+    'amp1': 8.0, 'cen1': 460.0, 'sigma1': 15.0,
+    'amp2': 5, 'cen2': 550.0, 'sigma2': 25.0
+ }
 # Display plots interactively?
 SHOW_PLOTS = False
 # === END USER CONFIGURATION ===
