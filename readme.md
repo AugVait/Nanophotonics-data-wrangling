@@ -25,7 +25,7 @@ Three main workflows are provided as standalone scripts. Configure each at the t
 |-------------------|--------------------------------------------------------------------------------------------------|
 | **main_basic.py** | Compute per-pixel maps (integrated intensity, mean wavelength, FWHM) and export heatmaps, pair plots, and corr matrix. |
 | **main_fit1.py**  | Average all spectra into one curve, fit with a chosen distribution, and save both the raw & fitted plots.     |
-| **main_fit2.py**  | "Mass fit": fit every pixel’s spectrum, save parameter table, spatial maps, distribution stats, and correlation matrix. Typically **main_fit1.py** is performed first so as to ascertain the correct initial parameters.|
+| **main_fit2.py**  | "Mass fit": fit every pixel’s spectrum, save parameter table, spatial maps, distribution stats, and correlation matrix. Typically **main_fit1.py** is performed first so as to ascertain the correct initial parameters. Always make sure that both fitting scripts use the same **model**.|
 
 ## Configuration
 
@@ -59,9 +59,10 @@ The analysis scripts support multiple spectral fitting models for handling diffe
 
 Fits a **single symmetric Gaussian** function:
 
-\[
+$$
 f(x) = A \cdot \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
-\]
+$$
+
 
 - **Parameters:**
   - `amplitude` \( A \): peak height
@@ -78,9 +79,9 @@ f(x) = A \cdot \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
 
 Fits the sum of two symmetric Gaussians:
 
-\[
+$$
 f(x) = A_1 \cdot \exp\left(-\frac{(x - \mu_1)^2}{2\sigma_1^2}\right) + A_2 \cdot \exp\left(-\frac{(x - \mu_2)^2}{2\sigma_2^2}\right)
-\]
+$$
 
 - **Parameters:**
   - `amp1`, `cen1`, `sigma1`: for the first peak
@@ -97,21 +98,20 @@ f(x) = A_1 \cdot \exp\left(-\frac{(x - \mu_1)^2}{2\sigma_1^2}\right) + A_2 \cdot
 
 Fits an **asymmetric Gaussian** with separate FWHMs for each side of the peak:
 
-\[
+$$
 f(x) = A \cdot \exp\left(-\frac{(x - \mu)^2}{2\sigma(x)^2}\right)
-\quad \text{where} \quad
-\sigma(x) = 
+$$
+
+where
+
+$$
+\sigma(x) =
 \begin{cases}
-\sigma_\text{low} & \text{if } x < \mu \\
-\sigma_\text{high} & \text{if } x \geq \mu
+\sigma_\text{low}, & \text{if } x < \mu \\
+\sigma_\text{high}, & \text{if } x \geq \mu
 \end{cases}
-\]
+$$
 
-Here, the relationship between FWHM and standard deviation is:
-
-\[
-\sigma = \frac{\text{FWHM}}{2\sqrt{2\ln 2}}
-\]
 
 - **Parameters:**
   - `amp` \( A \): amplitude of the peak
@@ -123,7 +123,12 @@ Here, the relationship between FWHM and standard deviation is:
   - Skewed emission lines
   - Inhomogeneous broadening
 
+---
+The conversion from full width at half maximum (FWHM) to standard deviation is:
 
+$$
+\sigma = \frac{\text{FWHM}}{2\sqrt{2 \ln 2}}
+$$
 ## Module Reference
 
 ### `io_utils.py`
