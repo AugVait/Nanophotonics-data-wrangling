@@ -6,8 +6,9 @@ This toolkit enables rapid post-processing of hyperspectral datasets by computin
 
 ## Recommended Setup
 
-Use a Python-aware IDE (e.g., VS Code, Spyder) for syntax highlighting, code navigation, and debugging. 
-CLI is not supported as you will need to input multiple parameters directly in the code.
+Use a Python-aware IDE (e.g., VS Code, IDLE) for syntax highlighting, code navigation, and debugging. 
+CLI is not supported as you will need to input multiple parameters directly in the code. Spyder also appears to be incompatible with TKinter, so my advice is to avoid using it.
+
 Ensure your working directory is the project root so imports resolve correctly.
 
 ### Install Dependencies

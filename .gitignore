@@ -1,0 +1,30 @@
+# === Python cache and build artifacts ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# === Virtual environments ===
+venv/
+.env/
+.env.bak/
+
+# === IDE/editor folders ===
+.vscode/
+.idea/
+*.swp
+
+# === Operating system files ===
+.DS_Store
+Thumbs.db
+
+# === Output folders (change to match yours) ===
+outputs/
+fit_outputs/
+mass_fit_outputs/
+
+# === Jupyter Notebook auto-save ===
+.ipynb_checkpoints/

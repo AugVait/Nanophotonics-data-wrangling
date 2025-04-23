@@ -4,22 +4,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from tqdm import tqdm
+import gc
 
 import io_utils
 import calc_utils
 import fit_utils
 import plot_utils
-
+print("Importing libraries...")
 # === USER CONFIGURATION ===
 # Base folder where outputs will be saved
 OUTPUT_BASE_DIR = "mass_fit_outputs"
 
 # Wavelength fitting window (nm)
-WAVELENGTH_MIN = 450.0
-WAVELENGTH_MAX = 650.0
+WAVELENGTH_MIN = 800.0
+WAVELENGTH_MAX = 1300.0
 
 # Choose 'single', 'double' or 'asymmetric' Gaussian
-MODEL = "single"
+MODEL = "asymmetric"
 
 # Initial fit parameters as a dict, e.g.:
 
@@ -35,13 +36,21 @@ MODEL = "single"
 # INITIAL_PARAMS = None
 
 INITIAL_PARAMS = {
-    'amp1': 8.0, 'cen1': 460.0, 'sigma1': 15.0,
-    'amp2': 5, 'cen2': 550.0, 'sigma2': 25.0
- }
+    'amp': 100.0,'cen': 1100.0,
+    'fwhm_low': 10.0, 'fwhm_high': 20.0 }
+ 
 # Display plots interactively?
 SHOW_PLOTS = False
 # === END USER CONFIGURATION ===
-
+print("User configuration complete.")
+# Print user configuration
+print("=== USER CONFIGURATION ===")
+print(f"Output Base Directory: {OUTPUT_BASE_DIR}")
+print(f"Wavelength Fitting Window: {WAVELENGTH_MIN} nm to {WAVELENGTH_MAX} nm")
+print(f"Model: {MODEL}")
+print(f"Initial Fit Parameters: {INITIAL_PARAMS}")
+print(f"Display Plots Interactively: {SHOW_PLOTS}")
+print("=== END USER CONFIGURATION ===")
 # === FILE SELECTION ===
 try:
     import tkinter as tk
@@ -60,7 +69,7 @@ except Exception as e:
     print(f"Dialog failed: {e}")
     FILE_PATH = input("Enter path to spectral data file: ")
 # === END FILE SELECTION ===
-
+print("File selection complete.")
 # Prepare output directory
 os.makedirs(OUTPUT_BASE_DIR, exist_ok=True)
 sample_name = os.path.splitext(os.path.basename(FILE_PATH))[0]
@@ -96,12 +105,15 @@ for i in tqdm(range(n_pixels), desc="Fitting spectra", unit="pixel"):
             ax=None
         )
         params = fit_utils.extract_fit_results(res, model=MODEL)
+        del res  # Free memory
     except Exception as e:
         print(f"Fit failed for pixel {i}: {e}")
         keys = INITIAL_PARAMS.keys() if INITIAL_PARAMS else []
         params = {key: np.nan for key in keys}
         params['chi_square'] = np.nan
     df_results.append(params)
+    if i % 100 == 0:
+        gc.collect()
 
 # Convert to DataFrame and append intensity metrics
 df = pd.DataFrame(df_results)
